@@ -1,1 +1,2 @@
-export default function robots(){return {rules:{userAgent:'*',allow:'/'},sitemap:(process.env.NEXT_PUBLIC_SITE_URL||'')+'/sitemap.xml'}}
+import {site} from '@/config/site';
+export default function robots(){return {rules:{userAgent:'*',allow:'/',disallow:['/wishlist','/account']},sitemap:`${site.url}/sitemap.xml`}}

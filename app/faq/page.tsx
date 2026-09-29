@@ -1,0 +1,3 @@
+import Faq from '@/components/Faq';import {getFaqs} from '@/lib/content';import {site} from '@/config/site';import {page} from '@/lib/seo';export const metadata=page('FAQ','/faq');
+export default async function P(){const f=await getFaqs(),u=site.policyUpdated.faq;const ld={'@context':'https://schema.org','@type':'FAQPage',mainEntity:f.map(x=>({'@type':'Question',name:x.q,acceptedAnswer:{'@type':'Answer',text:x.a}}))};
+return <main className="pt-10 px-4 md:px-10 pb-24 min-h-screen"><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(ld)}}/><h1 className="dsp text-[clamp(64px,13vw,210px)] pb-6">FAQ</h1><div className="max-w-3xl"><Faq items={f}/>{u&&<p className="lab text-fg/60 mt-6">Last updated: {u}</p>}</div></main>}

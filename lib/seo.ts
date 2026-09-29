@@ -1,0 +1,2 @@
+import type {Metadata} from 'next';import {site} from '@/config/site';
+export const page=(title:string,path:string,description?:string):Metadata=>{const d=description||site.seo.description;return {title,description:d,alternates:{canonical:path},openGraph:{title,description:d,url:path,siteName:site.name,type:'website',...(site.seo.ogImage?{images:[site.seo.ogImage]}:{})},twitter:{card:'summary_large_image',title,description:d}}};

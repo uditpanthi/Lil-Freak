@@ -1,2 +1,3 @@
-const T='NEW DROP LIVE — FREE SHIPPING ABOVE ₹1999 — LIMITED QUANTITIES — ';
-export default function Marquee(){return <div className="bg-acid text-ink lab py-2 overflow-hidden whitespace-nowrap" aria-label="Announcement"><div className="flex w-max mq">{[0,1].map(k=><span key={k} className="pr-12">{T.repeat(4)}</span>)}</div></div>}
+import Link from 'next/link';import {getAnnouncement} from '@/lib/content';
+export default async function Marquee(){const a=await getAnnouncement();if(!a.enabled||!a.text)return null;const t=`${a.text.toUpperCase()} — `,Row=<>{[0,1].map(k=><span key={k} className="pr-12" aria-hidden={k?true:undefined}>{t.repeat(4)}</span>)}</>;
+return <div className="bg-acid text-ink lab py-2 overflow-hidden whitespace-nowrap no-print" role="region" aria-label="Announcement">{a.href?<Link href={a.href} className="block"><div className="flex w-max mq">{Row}</div></Link>:<div className="flex w-max mq">{Row}</div>}</div>}

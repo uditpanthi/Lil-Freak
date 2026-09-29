@@ -1,13 +1,15 @@
+import {site} from '@/config/site';
 const D=process.env.NEXT_PUBLIC_SHOPIFY_DOMAIN!,TOK=process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN!,V=process.env.NEXT_PUBLIC_SHOPIFY_API_VERSION||'2026-07';
-export const FREE_SHIPPING=1999;
+export const FREE_SHIPPING=site.freeShippingThreshold;
 export const inr=(n:number|string)=>'₹'+Number(n).toLocaleString('en-IN');
 export async function sf<R=any>(query:string,variables:Record<string,unknown>={}):Promise<R>{
+  if(!D||!TOK)throw new Error('Missing NEXT_PUBLIC_SHOPIFY_DOMAIN / NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN');
   const r=await fetch(`https://${D}/api/${V}/graphql.json`,{method:'POST',headers:{'Content-Type':'application/json','X-Shopify-Storefront-Access-Token':TOK},body:JSON.stringify({query,variables}),...(typeof window==='undefined'?{next:{revalidate:60}}:{cache:'no-store' as const})});
   const j=await r.json(); if(j.errors) throw new Error(JSON.stringify(j.errors)); return j.data;
 }
-const PF=`fragment P on Product{id handle title description availableForSale tags productType createdAt compareAtPriceRange{minVariantPrice{amount}} priceRange{minVariantPrice{amount}} images(first:8){nodes{url altText width height}} media(first:10){nodes{mediaContentType ... on Video{sources{url mimeType} previewImage{url}}}} options{name values} variants(first:60){nodes{id title availableForSale price{amount} compareAtPrice{amount} selectedOptions{name value}}}}`;
+const PF=`fragment P on Product{id handle title description availableForSale tags productType createdAt fit:metafield(namespace:"custom",key:"fit"){value} material:metafield(namespace:"custom",key:"material"){value} care:metafield(namespace:"custom",key:"care"){value} compareAtPriceRange{minVariantPrice{amount}} priceRange{minVariantPrice{amount}} images(first:8){nodes{url altText width height}} media(first:10){nodes{mediaContentType ... on Video{sources{url mimeType} previewImage{url}}}} options{name values} variants(first:60){nodes{id title availableForSale price{amount} compareAtPrice{amount} selectedOptions{name value}}}}`;
 export type Variant={id:string;title:string;availableForSale:boolean;price:{amount:string};compareAtPrice?:{amount:string}|null;selectedOptions:{name:string;value:string}[]};
-export type Product={id:string;handle:string;title:string;description:string;availableForSale:boolean;tags:string[];productType:string;createdAt:string;media:{nodes:any[]};compareAtPriceRange:{minVariantPrice:{amount:string}};priceRange:{minVariantPrice:{amount:string}};images:{nodes:{url:string;altText:string|null;width:number;height:number}[]};options:{name:string;values:string[]}[];variants:{nodes:Variant[]}};
+export type Product={id:string;handle:string;title:string;description:string;availableForSale:boolean;tags:string[];productType:string;createdAt:string;media:{nodes:any[]};fit?:{value:string}|null;material?:{value:string}|null;care?:{value:string}|null;compareAtPriceRange:{minVariantPrice:{amount:string}};priceRange:{minVariantPrice:{amount:string}};images:{nodes:{url:string;altText:string|null;width:number;height:number}[]};options:{name:string;values:string[]}[];variants:{nodes:Variant[]}};
 export async function getProducts(handle?:string,sort?:string):Promise<Product[]>{
   const rev=sort==='hi'||sort==='new';
   if(handle){const k=sort==='lo'||sort==='hi'?'PRICE':sort==='new'?'CREATED':'COLLECTION_DEFAULT';
@@ -25,3 +27,5 @@ export const cartAdd=async(id:string,merchandiseId:string,quantity=1):Promise<Ca
 export const cartSet=async(id:string,lineId:string,quantity:number):Promise<Cart>=>(await sf(`${CF}mutation($id:ID!,$l:[CartLineUpdateInput!]!){cartLinesUpdate(cartId:$id,lines:$l){cart{...C}}}`,{id,l:[{id:lineId,quantity}]})).cartLinesUpdate.cart;
 export const cartRemove=async(id:string,lineId:string):Promise<Cart>=>(await sf(`${CF}mutation($id:ID!,$l:[ID!]!){cartLinesRemove(cartId:$id,lineIds:$l){cart{...C}}}`,{id,l:[lineId]})).cartLinesRemove.cart;
 export const cartCode=async(id:string,codes:string[]):Promise<Cart>=>(await sf(`${CF}mutation($id:ID!,$c:[String!]){cartDiscountCodesUpdate(cartId:$id,discountCodes:$c){cart{...C}}}`,{id,c:codes})).cartDiscountCodesUpdate.cart;
+export async function getCollectionMeta(handle:string){try{return (await sf(`query($h:String!){collection(handle:$h){title description image{url altText}}}`,{h:handle})).collection as {title:string;description:string;image?:{url:string;altText:string|null}|null}|null}catch{return null}}
+export async function getPolicy(key:'privacyPolicy'|'refundPolicy'|'shippingPolicy'|'termsOfService'){try{return (await sf(`{shop{privacyPolicy{title body} refundPolicy{title body} shippingPolicy{title body} termsOfService{title body}}}`)).shop[key] as {title:string;body:string}|null}catch{return null}}

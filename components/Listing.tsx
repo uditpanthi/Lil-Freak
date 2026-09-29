@@ -1,2 +1,2 @@
-import {getProducts} from '@/lib/shopify';import ShopClient from './ShopClient';
-export default async function Listing({title,handle}:{title:string;handle?:string;base?:string;sort?:string}){const ps=await getProducts(handle).catch(()=>[]);return <ShopClient title={title} products={ps}/>}
+import {getProducts,getCollectionMeta} from '@/lib/shopify';import ShopClient from './ShopClient';
+export default async function Listing({title,handle}:{title:string;handle?:string;base?:string;sort?:string}){const [ps,meta]=await Promise.all([getProducts(handle).catch(()=>[]),handle?getCollectionMeta(handle):Promise.resolve(null)]);return <ShopClient title={meta?.title||title} products={ps} banner={meta}/>}
