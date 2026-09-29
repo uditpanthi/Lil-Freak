@@ -1,0 +1,4 @@
+'use client';
+import Link from 'next/link';import {useEffect,useState} from 'react';import {Product,getProducts} from '@/lib/shopify';import ProductCard from '@/components/ProductCard';import {useStore} from '@/components/Store';
+export default function W(){const {wish}=useStore(),[all,setAll]=useState<Product[]>([]);useEffect(()=>{getProducts().then(setAll).catch(()=>{})},[]);const ps=all.filter(p=>wish.includes(p.handle));
+return <main className="pt-28 px-4 md:px-10 pb-24 min-h-screen"><h1 className="dsp text-[clamp(64px,13vw,210px)] pb-6">Wishlist</h1>{ps.length?<div className="grid grid-cols-2 md:grid-cols-4 gap-3">{ps.map((p,i)=><ProductCard key={p.id} p={p} i={i}/>)}</div>:<div className="text-center py-24"><h2 className="dsp text-7xl mb-6">Nothing saved.<br/>Yet.</h2><Link href="/shop" className="btn">Find your freak →</Link></div>}</main>}

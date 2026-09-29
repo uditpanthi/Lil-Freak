@@ -1,0 +1,2 @@
+import Image from 'next/image';
+export default function Photo({src,label,className='',color='#1c1c1a'}:{src?:string;label:string;className?:string;color?:string}){return <div className={`relative overflow-hidden ${className}`} style={{background:color}}>{src?<Image src={src} alt={label} fill sizes="(max-width:768px) 100vw,50vw" className="object-cover"/>:<span className="absolute inset-0 grid place-items-center lab text-ink/50">[ {label} ]</span>}</div>}

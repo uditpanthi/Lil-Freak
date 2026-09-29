@@ -1,0 +1,2 @@
+import {MetadataRoute} from 'next';import {getProducts} from '@/lib/shopify';
+export default async function sitemap():Promise<MetadataRoute.Sitemap>{const u=process.env.NEXT_PUBLIC_SITE_URL||'http://localhost:3000',ps=await getProducts().catch(()=>[]);return [...['','/shop','/new-drop','/category/tees','/category/hoodies','/category/sweats','/lookbook','/about'].map(p=>({url:u+p})),...ps.map(p=>({url:`${u}/product/${p.handle}`}))]}

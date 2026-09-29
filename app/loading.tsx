@@ -1,0 +1,1 @@
+export default function Loading(){return <main className="pt-28 px-4 md:px-10 min-h-screen" aria-busy="true"><div className="h-24 w-2/3 bg-char animate-pulse mb-8"/><div className="grid grid-cols-2 md:grid-cols-4 gap-3">{Array.from({length:8}).map((_,i)=><div key={i} className="aspect-[4/5] bg-char animate-pulse"/>)}</div></main>}
